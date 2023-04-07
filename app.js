@@ -28,14 +28,29 @@ const InitializeDbServer = async () => {
 InitializeDbServer();
 
 //List of Players
+const convertDbObjectToResponseObject = (dbObject) => {
+  return {
+    playerId: dbObject.player_id,
+    playerName: dbObject.player_name,
+    jerseyNumber: dbObject.jersey_number,
+    role: dbObject.role,
+  };
+};
 
 app.get("/players/", async (request, response) => {
   const playersQuery = `
     SELECT
       *
     FROM
-      cricket_team;`;
-  const booksArray = await db.all(playersQuery);
+      cricket_team
+    Order By 
+       player_id;`;
+  const responseArray = await db.all(playersQuery);
+  const booksArray = [];
+  for (let eachObject of responseArray) {
+    let newObj = convertDbObjectToResponseObject(eachObject);
+    booksArray.push(newObj);
+  }
   response.send(booksArray);
 });
 
