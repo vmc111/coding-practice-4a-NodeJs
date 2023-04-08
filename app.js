@@ -66,16 +66,15 @@ app.get("/players/", async (request, response) => {
 app.post("/players/", async (request, response) => {
   const playerDetails = request.body;
   let { playerName, jerseyNumber, role } = playerDetails;
-  //   console.log(request.body);
+  console.log(request.body);
   const createPlayerQuery = `
-    Insert into 
-    cricket_team (player_name, jersey_number, role)
-    Values (${playerName}, ${jerseyNumber}, ${role});`;
+   INSERT INTO 
+   cricket_team (player_name, jersey_number, role) 
+   VALUES (${playerName}, ${jerseyNumber}, ${role});`;
   try {
     await db.run(createPlayerQuery);
   } catch (e) {
     console.log(`Response Post Error: ${e.message}`);
-    process.exit(1);
   }
   response.send("Player Added to Team");
 });
