@@ -85,4 +85,28 @@ app.get("/players/:playerId/", async (request, response) => {
   response.send(requiredPlayerConvert(requiredPlayer));
 });
 
+//Put Method
+
+app.put("/players/:playerId/", async (request, response) => {
+  const { playerId } = request.params;
+  const details = request.body;
+  const { playerName, jerseyNumber, role } = details;
+
+  const UpdateQuery = `
+    UPDATE
+    cricket_team
+    SET
+    player_name = '${playerName}',
+    jersey_number = ${jerseyNumber},
+    role = '${role}'
+    WHERE
+    player_id = ${playerId};`;
+  try {
+    await db.run(UpdateQuery);
+  } catch (e) {
+    console.log(e.message);
+  }
+  response.send("Player Details Updated");
+});
+
 module.exports = app;
