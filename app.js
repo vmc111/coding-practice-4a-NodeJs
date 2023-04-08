@@ -16,9 +16,13 @@ const InitializeDbServer = async () => {
       filename: dbPath,
       driver: sqlite3.Database,
     });
-    app.listen(3000, () => {
-      console.log("Server Running at http://localhost:3000");
-    });
+    try {
+      app.listen(3000, () => {
+        console.log("Server Running at http://localhost:3000");
+      });
+    } catch (e) {
+      console.log(e.message);
+    }
   } catch (error) {
     console.log(`DB Error: ${error.message}`);
     process.exit(1);
@@ -107,6 +111,26 @@ app.put("/players/:playerId/", async (request, response) => {
     console.log(e.message);
   }
   response.send("Player Details Updated");
+});
+
+// Delete from DB
+
+app.delete("/players/:playerId/", async (request, resolve) => {
+  const { playerId } = request.params;
+
+  const deleteQuery = `
+    DELETE
+    FROM cricket_team
+    WHERE
+        player_id = ${playerId};`;
+
+  try {
+    await db.run(deleteQuery);
+  } catch (e) {
+    console.log(e.message);
+  }
+
+  response.send("Player Removed");
 });
 
 module.exports = app;
