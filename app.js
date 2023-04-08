@@ -28,12 +28,13 @@ const InitializeDbServer = async () => {
 InitializeDbServer();
 
 //List of Players
-const convertDbObjectToResponseObject = (dbObject) => {
+
+const requiredPlayerConvert = (requiredPlayer) => {
   return {
-    playerId: dbObject.player_id,
-    playerName: dbObject.player_name,
-    jerseyNumber: dbObject.jersey_number,
-    role: dbObject.role,
+    playerId: requiredPlayer.player_id,
+    playerName: requiredPlayer.player_name,
+    jerseyNumber: requiredPlayer.jersey_number,
+    role: requiredPlayer.role,
   };
 };
 
@@ -44,21 +45,10 @@ app.get("/players/", async (request, response) => {
     FROM
       cricket_team
     `;
-  const responseArray = await db.all(playersQuery);
-  responseArray.map((dbObject) => {
-    return {
-      playerId: dbObject.player_id,
-      playerName: dbObject.player_name,
-      jerseyNumber: dbObject.jersey_number,
-      role: dbObject.role,
-    };
-  });
-  const booksArray = [];
-  for (let eachObject of responseArray) {
-    let newObj = convertDbObjectToResponseObject(eachObject);
-    booksArray.push(newObj);
-  }
-  response.send(booksArray);
+
+  let responseArray = await db.all(playersQuery);
+  responseArray = responseArray.map(requiredPlayerConvert);
+  response.send(responseArray);
 });
 
 // Create New Player
@@ -70,13 +60,29 @@ app.post("/players/", async (request, response) => {
   const createPlayerQuery = `
    INSERT INTO 
    cricket_team (player_name, jersey_number, role) 
-   VALUES (${playerName}, ${jerseyNumber}, ${role});`;
+   VALUES ('${playerName}', ${jerseyNumber},'${role}');`;
   try {
     await db.run(createPlayerQuery);
   } catch (e) {
     console.log(`Response Post Error: ${e.message}`);
   }
   response.send("Player Added to Team");
+});
+
+// Get PlayerWith given Id
+
+app.get("/players/:playerId/", async (request, response) => {
+  const { playerId } = request.params;
+  //   console.log(playerId);
+
+  const getPlayerQuery = `
+    Select * 
+    FROM cricket_team
+    WHERE 
+        player_id = ${playerId};`;
+
+  const requiredPlayer = await db.get(getPlayerQuery);
+  response.send(requiredPlayerConvert(requiredPlayer));
 });
 
 module.exports = app;
