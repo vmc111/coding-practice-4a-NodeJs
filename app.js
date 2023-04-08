@@ -43,9 +43,16 @@ app.get("/players/", async (request, response) => {
       *
     FROM
       cricket_team
-    Order By 
-       player_id;`;
+    `;
   const responseArray = await db.all(playersQuery);
+  responseArray.map((dbObject) => {
+    return {
+      playerId: dbObject.player_id,
+      playerName: dbObject.player_name,
+      jerseyNumber: dbObject.jersey_number,
+      role: dbObject.role,
+    };
+  });
   const booksArray = [];
   for (let eachObject of responseArray) {
     let newObj = convertDbObjectToResponseObject(eachObject);
@@ -56,17 +63,20 @@ app.get("/players/", async (request, response) => {
 
 // Create New Player
 
-app.post("players", async (request, response) => {
+app.post("/players/", async (request, response) => {
   const playerDetails = request.body;
   let { playerName, jerseyNumber, role } = playerDetails;
-
+  //   console.log(request.body);
   const createPlayerQuery = `
     Insert into 
-    cricket_team (player_name,jersey_number, role)
+    cricket_team (player_name, jersey_number, role)
     Values (${playerName}, ${jerseyNumber}, ${role});`;
-
-  const dbResponse = await db.run(createPlayerQuery);
-  const playerId = dbResponse.lastId;
+  try {
+    await db.run(createPlayerQuery);
+  } catch (e) {
+    console.log(`Response Post Error: ${e.message}`);
+    process.exit(1);
+  }
   response.send("Player Added to Team");
 });
 
