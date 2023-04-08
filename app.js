@@ -115,7 +115,7 @@ app.put("/players/:playerId/", async (request, response) => {
 
 // Delete from DB
 
-app.delete("/players/:playerId/", async (request, resolve) => {
+app.delete("/players/:playerId/", async (request, response) => {
   const { playerId } = request.params;
 
   const deleteQuery = `
